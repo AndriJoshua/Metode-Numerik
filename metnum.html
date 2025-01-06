@@ -20,9 +20,10 @@
       }
 
       #sidebar {
-        width: 35%;
+        width: 50%;
         background-color: #1c356d;
-        height: 1000px;
+        min-height: 1000px;
+        max-height: 1500px;
         padding: 20px;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         display: flex;
@@ -63,12 +64,20 @@
       }
 
       #graph-container {
-        flex: 1;
+        width: 1000px;
+        height: 600px;
         display: flex;
         justify-content: center;
         align-items: center;
+      
       }
-
+      #containerutama {
+        width: 1000px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+      }
       #graph {
         width: 90%;
         height: 90%;
@@ -76,6 +85,7 @@
 
       #iterations {
         margin-top: 20px;
+        margin-bottom: 20px;
         overflow-y: auto;
         max-height: 350px;
         background: #fff;
@@ -99,6 +109,16 @@
       #iterations th {
         background-color: #f4f4f4;
       }
+      #anggota {
+        width: 100%;
+        height: 250px;
+        background-color: white;
+        margin-top: 15px;
+        border-radius: 4px;
+      }
+      label{
+        color: whitesmoke;
+      }
     </style>
   </head>
   <body>
@@ -118,13 +138,17 @@
         <option value="bisection">Bisection</option>
       </select>
 
+      <label>nilai xl atau x lower</label>
       <input type="number" id="xl" placeholder="Masukan xl" />
+      <label >nilai xu atau x upper</label>
       <input type="number" id="xu" placeholder="Masukan xu" />
+      <label>Masukan iterasi maksimal</label>
       <input
         type="number"
         id="maks_iter"
         placeholder="Masukan maksimal iterasi"
       />
+      <label>Masukan batas Toleransi</label>
       <input
         type="number"
         id="tolerance"
@@ -132,16 +156,30 @@
       />
       <button onclick="calculateMethod()">Kalkulasi</button>
 
+      <div id="output"></div>
+      <div id="anggota">
+        <h1 style="text-align: center">Kelompok Kernas</h1>
+        <h3 style="margin-left: 15px">Nama Anggota</h3>
+        <p style="margin-left: 30px">
+          1. Andri Joshua Damian - 22010201382.<br />
+          2. Muhammad Julian Syahputra - 2201020124<br />
+          3. Rido Ramadhan - 2201020020<br />
+          4. Muhammad Firdan W R - 2201020125<br />
+          5. Mohd Allfyan Baitul Nesam - 2201020023
+        </p>
+      </div>
+    </div>
+    <div
+      id="containerutama"
+      style="border: 2px solid black; width: 100%; height: 1000px"
+    >
+      <div id="graph-container">
+        <div id="graph"></div>
+      </div>
       <div id="iterations">
         <h3>Iterasi</h3>
         <div id="iterationTable"></div>
       </div>
-
-      <div id="output"></div>
-    </div>
-
-    <div id="graph-container">
-      <div id="graph"></div>
     </div>
 
     <script>
@@ -159,7 +197,7 @@
         const rootY = [];
 
         try {
-          for (let x = -10; x <= 10; x += 0.01) {
+          for (let x = -20; x <= 20; x += 0.001) {
             const y = math.evaluate(funcProcessed, { x });
             xValues.push(x);
             yValues.push(y);
@@ -172,7 +210,7 @@
               const y1 = yValues[i],
                 y2 = yValues[i + 1];
               const root = x1 - (y1 * (x2 - x1)) / (y2 - y1);
-              const roundedRoot = parseFloat(root.toFixed(4));
+              const roundedRoot = parseFloat(root.toFixed(5));
               rootX.push(roundedRoot);
               rootY.push(0);
             }
@@ -202,10 +240,10 @@
           const data = trace2 ? [trace1, trace2] : [trace1];
           const layout = {
             title: "Grafik fungsi",
-            xaxis: { range: [-5, 5], title: "Sumbu-x" }, 
-            yaxis: { range: [-10, 10], title: "Sumbu-y" }, 
+            xaxis: { range: [-5, 5], title: "Sumbu-x" },
+            yaxis: { range: [-10, 10], title: "Sumbu-y" },
           };
-          Plotly.newPlot("graph", data,layout);
+          Plotly.newPlot("graph", data, layout);
         } catch (error) {
           console.error("Error in plotting graph:", error);
           alert("Fungsi Invalid.Sintaks error atau salah");
@@ -266,14 +304,13 @@
             f_xr: f_xr.toFixed(6),
             ea: ea.toFixed(6),
           });
-          
 
           if (f_xl * f_xr < 0) {
             xu = xr;
           } else {
             xl = xr;
           }
-          
+
           prevXr = xr;
 
           if (ea < tol) break;
