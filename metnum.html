@@ -20,7 +20,7 @@
       }
 
       #sidebar {
-        width: 50%;
+        width: 400px;
         background-color: #1c356d;
         min-height: 1000px;
         max-height: 1500px;
@@ -64,15 +64,14 @@
       }
 
       #graph-container {
-        width: 1000px;
+        width: 800px;
         height: 600px;
         display: flex;
         justify-content: center;
         align-items: center;
-      
       }
       #containerutama {
-        width: 1000px;
+        width: 800px;
         display: flex;
         align-items: center;
         flex-direction: column;
@@ -116,7 +115,7 @@
         margin-top: 15px;
         border-radius: 4px;
       }
-      label{
+      label {
         color: whitesmoke;
       }
     </style>
@@ -125,7 +124,7 @@
     <div id="sidebar">
       <div class="headerawal" style="display: flex; flex-direction: row">
         <img src="pngwing.com.png" style="height: 50px; width: 50px" />
-        <h1 style="margin-left: 10px; color: whitesmoke">
+        <h1 style="margin-left: 10px; color: whitesmoke;font-size: large;">
           Metode Numerik Bracket Method
         </h1>
       </div>
@@ -140,7 +139,7 @@
 
       <label>nilai xl atau x lower</label>
       <input type="number" id="xl" placeholder="Masukan xl" />
-      <label >nilai xu atau x upper</label>
+      <label>nilai xu atau x upper</label>
       <input type="number" id="xu" placeholder="Masukan xu" />
       <label>Masukan iterasi maksimal</label>
       <input
@@ -171,7 +170,7 @@
     </div>
     <div
       id="containerutama"
-      style="border: 2px solid black; width: 100%; height: 1000px"
+      style="width: 800px; height: 1000px"
     >
       <div id="graph-container">
         <div id="graph"></div>
