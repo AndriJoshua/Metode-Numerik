@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Calculator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        height: 100vh;
+      }
+
+      #sidebar {
+        width: 35%;
+        background-color: #1c356d;
+        height: 1000px;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+
+      #sidebar h1 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+      }
+
+      #sidebar input {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+      }
+
+      #sidebar button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1em;
+      }
+
+      #sidebar button:hover {
+        background-color: #0056b3;
+      }
+
+      #sidebar select {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #graph-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #graph {
+        width: 90%;
+        height: 90%;
+      }
+
+      #iterations {
+        margin-top: 20px;
+        overflow-y: auto;
+        max-height: 350px;
+        background: #fff;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #iterations table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #iterations th,
+      #iterations td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+      }
+
+      #iterations th {
+        background-color: #f4f4f4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <div class="headerawal" style="display: flex; flex-direction: row">
+        <img src="pngwing.com.png" style="height: 50px; width: 50px" />
+        <h1 style="margin-left: 10px; color: whitesmoke">
+          Metode Numerik Bracket Method
+        </h1>
+      </div>
+      <input type="text" id="function" placeholder="Masukan fungsi" />
+      <button onclick="plotGraph()">Gambar Graf</button>
+
+      <h2 style="color: whitesmoke">Metode</h2>
+      <select id="method">
+        <option value="regulaFalsi">Regula Falsi</option>
+        <option value="bisection">Bisection</option>
+      </select>
+
+      <input type="number" id="xl" placeholder="Masukan xl" />
+      <input type="number" id="xu" placeholder="Masukan xu" />
+      <input
+        type="number"
+        id="maks_iter"
+        placeholder="Masukan maksimal iterasi"
+      />
+      <input
+        type="number"
+        id="tolerance"
+        placeholder="Masukan batas toleransi error"
+      />
+      <button onclick="calculateMethod()">Kalkulasi</button>
+
+      <div id="iterations">
+        <h3>Iterasi</h3>
+        <div id="iterationTable"></div>
+      </div>
+
+      <div id="output"></div>
+    </div>
+
+    <div id="graph-container">
+      <div id="graph"></div>
+    </div>
+
+    <script>
+      function plotGraph() {
+        const funcInput = document.getElementById("function").value;
+        if (!funcInput) {
+          alert("Please enter a valid function.");
+          return;
+        }
+
+        const funcProcessed = funcInput.replace(/\be\b/g, "2.718");
+        const xValues = [];
+        const yValues = [];
+        const rootX = [];
+        const rootY = [];
+
+        try {
+          for (let x = -10; x <= 10; x += 0.01) {
+            const y = math.evaluate(funcProcessed, { x });
+            xValues.push(x);
+            yValues.push(y);
+          }
+
+          for (let i = 0; i < yValues.length - 1; i++) {
+            if (yValues[i] * yValues[i + 1] < 0) {
+              const x1 = xValues[i],
+                x2 = xValues[i + 1];
+              const y1 = yValues[i],
+                y2 = yValues[i + 1];
+              const root = x1 - (y1 * (x2 - x1)) / (y2 - y1);
+              const roundedRoot = parseFloat(root.toFixed(4));
+              rootX.push(roundedRoot);
+              rootY.push(0);
+            }
+          }
+
+          const trace1 = {
+            x: xValues,
+            y: yValues,
+            type: "scatter",
+            mode: "lines",
+            name: "Fungsi",
+          };
+
+          const trace2 =
+            rootX.length > 0
+              ? {
+                  x: rootX,
+                  y: rootY,
+                  mode: "markers+text",
+                  text: rootX.map((r) => `x = ${r}`),
+                  textposition: "top center",
+                  marker: { color: "red", size: 10 },
+                  name: `akar`,
+                }
+              : null;
+
+          const data = trace2 ? [trace1, trace2] : [trace1];
+          const layout = {
+            title: "Grafik fungsi",
+            xaxis: { range: [-5, 5], title: "Sumbu-x" }, 
+            yaxis: { range: [-10, 10], title: "Sumbu-y" }, 
+          };
+          Plotly.newPlot("graph", data,layout);
+        } catch (error) {
+          console.error("Error in plotting graph:", error);
+          alert("Fungsi Invalid.Sintaks error atau salah");
+        }
+      }
+
+      function calculateMethod() {
+        const method = document.getElementById("method").value;
+        if (method === "regulaFalsi") {
+          regulaFalsi();
+        } else if (method === "bisection") {
+          bisection();
+        }
+      }
+
+      function regulaFalsi() {
+        const funcInput = document.getElementById("function").value;
+        const funcProcessed = funcInput.replace(/\be\b/g, "2.718");
+        let xl = parseFloat(document.getElementById("xl").value);
+        let xu = parseFloat(document.getElementById("xu").value);
+        const tol = parseFloat(document.getElementById("tolerance").value);
+        const maxIter = parseFloat(document.getElementById("maks_iter").value);
+
+        let iterationData = [];
+        let xr = 0,
+          prevXr = 0,
+          ea = 100;
+
+        const f_xl = math.evaluate(funcProcessed, { x: xl });
+        const f_xu = math.evaluate(funcProcessed, { x: xu });
+
+        if (f_xl * f_xu > 0) {
+          alert(
+            `Interval invalid: f(xl) = ${f_xl.toFixed(
+              6
+            )}, f(xu) = ${f_xu.toFixed(6)}`
+          );
+          return;
+        }
+        for (let i = 0; i < maxIter; i++) {
+          const f_xl = math.evaluate(funcProcessed, { x: xl });
+          const f_xu = math.evaluate(funcProcessed, { x: xu });
+          xr = xu - (f_xu * (xl - xu)) / (f_xl - f_xu);
+
+          const f_xr = math.evaluate(funcProcessed, { x: xr });
+
+          if (i > 0) {
+            ea = Math.abs((xr - prevXr) / xr) * 100;
+          }
+
+          iterationData.push({
+            iter: i + 1,
+            xl: xl.toFixed(6),
+            xu: xu.toFixed(6),
+            f_xl: f_xl.toFixed(6),
+            f_xu: f_xu.toFixed(6),
+            xr: xr.toFixed(6),
+            f_xr: f_xr.toFixed(6),
+            ea: ea.toFixed(6),
+          });
+          
+
+          if (f_xl * f_xr < 0) {
+            xu = xr;
+          } else {
+            xl = xr;
+          }
+          
+          prevXr = xr;
+
+          if (ea < tol) break;
+        }
+
+        displayIterations(iterationData);
+      }
+
+      function bisection() {
+        const funcInput = document.getElementById("function").value;
+        const funcProcessed = funcInput.replace(/\be\b/g, "2.718");
+        let xl = parseFloat(document.getElementById("xl").value);
+        let xu = parseFloat(document.getElementById("xu").value);
+        const tol = parseFloat(document.getElementById("tolerance").value);
+        const maxIter = parseFloat(document.getElementById("maks_iter").value);
+
+        let iterationData = [];
+        let xr = 0,
+          prevXr = 0,
+          ea = 100;
+
+        const f_xl = math.evaluate(funcProcessed, { x: xl });
+        const f_xu = math.evaluate(funcProcessed, { x: xu });
+
+        if (f_xl * f_xu > 0) {
+          alert(
+            `Interval invalid: f(xl) = ${f_xl.toFixed(
+              6
+            )}, f(xu) = ${f_xu.toFixed(6)}`
+          );
+          return;
+        }
+
+        for (let i = 0; i < maxIter; i++) {
+          const f_xl = math.evaluate(funcProcessed, { x: xl });
+          const f_xu = math.evaluate(funcProcessed, { x: xu });
+          xr = (xl + xu) / 2;
+          const f_xr = math.evaluate(funcProcessed, { x: xr });
+
+          if (i > 0) {
+            ea = Math.abs((xr - prevXr) / xr) * 100;
+          }
+
+          iterationData.push({
+            iter: i + 1,
+            xl: xl.toFixed(6),
+            xu: xu.toFixed(6),
+            f_xl: f_xl.toFixed(6),
+            f_xu: f_xu.toFixed(6),
+            xr: xr.toFixed(6),
+            f_xr: f_xr.toFixed(6),
+            ea: ea.toFixed(6),
+          });
+
+          if (f_xl * f_xr < 0) {
+            xu = xr;
+          } else {
+            xl = xr;
+          }
+
+          prevXr = xr;
+
+          if (ea < tol) break;
+        }
+
+        displayIterations(iterationData);
+      }
+
+      function displayIterations(data) {
+        let table =
+          "<table><thead><tr><th>Iter</th><th>xl</th><th>xu</th><th>f(xl)</th><th>f(xu)</th><th>xr</th><th>f(xr)</th><th>Aproksimasi Error (%)</th></tr></thead><tbody>";
+        data.forEach((row) => {
+          table += `<tr><td>${row.iter}</td><td>${row.xl}</td><td>${row.xu}</td><td>${row.f_xl}</td><td>${row.f_xu}</td><td>${row.xr}</td><td>${row.f_xr}</td><td>${row.ea}</td></tr>`;
+        });
+        table += "</tbody></table>";
+
+        document.getElementById("iterationTable").innerHTML = table;
+      }
+    </script>
+  </body>
+</html>
